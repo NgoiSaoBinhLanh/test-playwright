@@ -1,0 +1,183 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    title Shopee Clone Fixed
+    
+    //- Font Awesome & Font
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+    link(href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet')
+    
+    //- CSS Riêng
+    link(rel='stylesheet' href='/css/style-heading.css')
+    link(rel="stylesheet", href="/css/home.css")
+    
+    //- Tailwind CSS
+    script(src="https://cdn.tailwindcss.com")
+    
+    //- Block Head (Cho phép trang con thêm CSS nếu cần)
+    block head
+
+  body 
+    header.shopee-header
+      .container
+        //- Navbar trên cùng
+        nav.header-navbar
+          ul.navbar-list
+            li.navbar-item Kênh Người Bán
+            li.navbar-item.separator
+            li.navbar-item Tải ứng dụng
+            li.navbar-item.separator
+            li.navbar-item
+              | Kết nối
+              i.fa-brands.fa-facebook.margin-left-5
+              i.fa-brands.fa-instagram.margin-left-5
+          ul.navbar-list
+            li.navbar-item
+              i.fa-regular.fa-bell.margin-right-5
+              | Thông Báo
+            li.navbar-item
+              i.fa-regular.fa-circle-question.margin-right-5
+              | Hỗ Trợ
+            li.navbar-item
+              i.fa-solid.fa-globe.margin-right-5
+              | Tiếng Việt 
+              i.fa-solid.fa-chevron-down.margin-left-5(style='font-size: 10px;')
+            li.navbar-item.user-item
+              .user-avatar F
+              | fg0t09q5kw
+
+        //- Phần Tìm kiếm chính
+        .header-with-search
+          .header-logo
+            a(href="/" style="text-decoration: none; color: inherit;")
+                i.fa-solid.fa-bag-shopping.logo-icon
+                span.logo-text Shopee
+          
+          .header-search
+            .header-search-input-wrap.relative
+                //- 1. Thêm ID cho Input
+                input#search-input.header-search-input(type='text' placeholder='QUỐC TẾ SIÊU SALE -50%' autocomplete="off")
+                
+                button.header-search-btn
+                    i.fa-solid.fa-magnifying-glass
+
+                //- 2. Thêm Hộp Kết Quả Gợi Ý (Ẩn mặc định)
+                #search-results.hidden.absolute.top-full.left-0.w-full.bg-white.rounded-sm.shadow-lg.mt-1.border.border-gray-100.z-50
+                    ul#suggestion-list.text-sm.text-black.text-left
+
+            //- Lịch sử tìm kiếm (Giữ nguyên design của bạn)
+            .header-search-history
+              a(href='#') Gôm Xịt Tóc Nam
+              a(href='#') Bột Phồng Tóc
+              a(href='#') Áo Khoác Nam
+              a(href='#') Dép Nam
+              a(href='#') Túi Chéo
+          
+          .header-cart
+            i.fa-solid.fa-cart-shopping
+   
+    //- Nội dung chính của từng trang sẽ nằm ở đây
+    block main
+
+    footer.footer
+      .container
+        .grid-row
+          .grid-column
+            h3.footer-heading CHĂM SÓC KHÁCH HÀNG
+            ul.footer-list
+              li: a.footer-item-link(href='#') Trung Tâm Trợ Giúp
+              li: a.footer-item-link(href='#') Shopee Blog
+              li: a.footer-item-link(href='#') Shopee Mall
+              li: a.footer-item-link(href='#') Hướng Dẫn Mua Hàng
+              li: a.footer-item-link(href='#') Hướng Dẫn Bán Hàng
+              li: a.footer-item-link(href='#') Thanh Toán
+              li: a.footer-item-link(href='#') Shopee Xu
+              li: a.footer-item-link(href='#') Vận Chuyển
+              li: a.footer-item-link(href='#') Trả Hàng & Hoàn Tiền
+              li: a.footer-item-link(href='#') Chăm Sóc Khách Hàng
+              li: a.footer-item-link(href='#') Chính Sách Bảo Hành
+          .grid-column
+            h3.footer-heading VỀ SHOPEE
+            ul.footer-list
+              li: a.footer-item-link(href='#') Giới Thiệu Về Shopee Việt Nam
+              li: a.footer-item-link(href='#') Tuyển Dụng
+              li: a.footer-item-link(href='#') Điều Khoản Shopee
+              li: a.footer-item-link(href='#') Chính Sách Bảo Mật
+              li: a.footer-item-link(href='#') Chính Hãng
+              li: a.footer-item-link(href='#') Kênh Người Bán
+              li: a.footer-item-link(href='#') Flash Sale
+              li: a.footer-item-link(href='#') Tiếp Thị Liên Kết
+              li: a.footer-item-link(href='#') Liên Hệ Với Truyền Thông
+          .grid-column
+            h3.footer-heading THANH TOÁN
+            .footer-img-list
+              .img-box: i.fa-brands.fa-cc-visa
+              .img-box: i.fa-brands.fa-cc-mastercard
+              .img-box: i.fa-brands.fa-cc-jcb
+              .img-box AMEX
+              .img-box COD
+              .img-box Trả Góp
+              .img-box ShopeePay
+            h3.footer-heading.margin-top-20 ĐƠN VỊ VẬN CHUYỂN
+            .footer-img-list
+              .img-box SPX
+              .img-box GHTK
+              .img-box Viettel
+              .img-box VNPost
+              .img-box J&T
+              .img-box Grab
+              .img-box Ninja
+              .img-box Best
+          .grid-column
+            h3.footer-heading THEO DÕI CHÚNG TÔI
+            
+          .grid-column
+            h3.footer-heading TẢI ỨNG DỤNG SHOPEE
+            .footer-download
+              .download-qr
+                i.fa-solid.fa-qrcode(style='font-size: 60px;')
+              .download-apps
+                a.download-app-link(href='#')
+                  i.fa-brands.fa-apple
+                  |  App Store
+                a.download-app-link(href='#')
+                  i.fa-brands.fa-google-play
+                  |  Google Play
+                a.download-app-link(href='#')
+                  i.fa-solid.fa-mobile-screen
+                  |  AppGallery
+        .footer-copyright-row
+          .copyright-text &copy; 2026 Shopee. Tất cả các quyền được bảo lưu.
+          .country-list
+            | Quốc gia & Khu vực: 
+            a(href='#') Singapore
+            |  | 
+            a(href='#') Indonesia
+            |  | 
+            a(href='#') Thái Lan
+            |  | 
+            a(href='#') Malaysia
+            |  | 
+            a(href='#') Việt Nam
+            |  | 
+            a(href='#') Philippines
+        .footer-bottom
+          .container
+            .policy-list
+              a.policy-item(href='#') CHÍNH SÁCH BẢO MẬT
+              a.policy-item(href='#') QUY CHẾ HOẠT ĐỘNG
+              a.policy-item(href='#') CHÍNH SÁCH VẬN CHUYỂN
+              a.policy-item(href='#') CHÍNH SÁCH TRẢ HÀNG VÀ HOÀN TIỀN
+            .bct-check
+              img(src='http://online.gov.vn/Content/EndUser/Logo/logo-da-thong-bao-bo-cong-thuong-mau-xanh.png' alt='Đã đăng ký bộ công thương' width='160')
+            .company-info
+              p Công ty TNHH Shopee
+              p Địa chỉ: Tầng 4-5-6, Tòa nhà Capital Place, số 29 đường Liễu Giai, Phường Ngọc Khánh, Quận Ba Đình, Thành phố Hà Nội, Việt Nam. Tổng đài hỗ trợ: 19001221 - Email: cskh@hotro.shopee.vn
+              p Chịu Trách Nhiệm Quản Lý Nội Dung: Nguyễn Đức Trí - Điện thoại liên hệ: 024 73081221 (ext 4678)
+              p Mã số doanh nghiệp: 0106773786 do Sở Kế hoạch & Đầu tư TP Hà Nội cấp lần đầu ngày 10/02/2015
+              p &copy; 2015 - Bản quyền thuộc về Công ty TNHH Shopee
+
+    //- 3. Block Script (Để trang con nhúng JS vào)
+    block scripts

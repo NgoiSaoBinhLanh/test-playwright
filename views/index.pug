@@ -1,0 +1,88 @@
+extends layouts/default.pug
+
+block main 
+    //- --- 1. PHẦN BANNER QUẢNG CÁO ---
+    .container.mx-auto.pt-8.px-4(class="max-w-[1200px]")
+      .grid.grid-cols-3.gap-2(class="h-[240px]")
+        //- Banner Lớn (Chiếm 2/3)
+        .col-span-2.relative.rounded-sm.overflow-hidden.cursor-pointer
+          img.w-full.h-full.object-cover(src="https://placehold.co/800x400/ed3833/ffffff?text=BANNER+LỚN:+OMO+TẾT+2025", alt="Banner Lớn")
+          
+        //- 2 Banner Nhỏ bên phải
+        .col-span-1.flex.flex-col.gap-2(class="h-[240px]")
+          .h-1.flex-1.rounded-sm.overflow-hidden.cursor-pointer
+            img.w-full.h-full.object-cover(src="https://placehold.co/400x200/ff6600/ffffff?text=Banner+Nhỏ+1:+Thứ+2+Chính+Hãng", alt="Banner Nhỏ 1")
+          .h-1.flex-1.rounded-sm.overflow-hidden.cursor-pointer
+            img.w-full.h-full.object-cover(src="https://placehold.co/400x200/orange/ffffff?text=Banner+Nhỏ+2:+Lung+Linh+Ngày+Tết", alt="Banner Nhỏ 2")
+
+    //- --- 2. PHẦN ICON TIỆN ÍCH (Deal, Voucher...) ---
+    .container.mx-auto.mt-4.bg-white.px-4.py-6.rounded-sm(class="max-w-[1200px]")
+      .flex.justify-between.items-start
+        //- Danh sách các mục (Mixin để tái sử dụng)
+        mixin serviceItem(imgColor, title)
+          .flex.flex-col.items-center.gap-2.cursor-pointer(class="w-[100px] hover:-translate-y-1 transition-transform duration-200")
+            .w-12.h-12.rounded-2xl.flex.items-center.justify-center.border.shadow-sm(class=`bg-${imgColor}-50 border-${imgColor}-100`)
+              //- Thay thẻ img bằng ảnh icon thật của bạn
+              img.w-8.h-8.object-contain(src=`https://placehold.co/64x64/${imgColor}/ffffff?text=ICON`, alt=title)
+            span.text-xs.text-center.text-gray-700.leading-tight.font-medium= title
+
+        +serviceItem('blue', 'Deal Từ 1.000Đ')
+        +serviceItem('orange', 'Shopee Xử Lý')
+        +serviceItem('red', 'Deal Hot Giờ Vàng')
+        +serviceItem('purple', 'Shopee Style Voucher 30%')
+        +serviceItem('green', 'Khách Hàng Thân Thiết')
+        +serviceItem('yellow', 'Mã Giảm Giá')
+        +serviceItem('pink', 'Hàng Quốc Tế')
+        +serviceItem('indigo', 'Nạp Thẻ & Dịch Vụ')
+
+    //- --- 3. PHẦN DANH MỤC SẢN PHẨM ---
+    .container.mx-auto.mt-4.bg-white.rounded-sm(class="max-w-[1200px]")
+      //- Tiêu đề
+      .p-4.border-b.border-gray-100
+        h2.text-gray-500.font-bold.text-base.uppercase DANH MỤC
+
+      //- Grid Danh mục (20 ô - 2 dòng x 10 cột)
+      .relative
+        //- Nút mũi tên (Trang trí)
+        button.absolute.right-0.top-1.z-10.bg-white.shadow-md.rounded-full.p-2.m-4(class="top-[40%] hover:scale-110 transition")
+           svg.w-4.h-4.text-gray-500(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+             path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7")
+
+        //- Grid chính
+        .grid.grid-cols-10
+          //- Mixin cho từng ô danh mục
+          mixin categoryItem(name, imgUrl)
+            .col-span-1.border-r.border-b.border-gray-100.h-36.flex.flex-col.items-center.justify-center.cursor-pointer.group(class="hover:shadow-[0_0_10px_rgba(0,0,0,0.1)] hover:z-10 bg-white transition-all")
+              .w-20.h-20.mb-2.overflow-hidden
+                img.w-full.h-full.object-contain.transition-transform(class="group-hover:scale-110" src=imgUrl, alt=name)
+              span.text-sm.text-gray-800.text-center.px-2.leading-4.line-clamp-2= name
+
+          //- Dòng 1
+          +categoryItem('Thời Trang Nam', 'https://placehold.co/100x100?text=Áo+Thun')
+          +categoryItem('Điện Thoại & Phụ Kiện', 'https://placehold.co/100x100?text=Phone')
+          +categoryItem('Thiết Bị Điện Tử', 'https://placehold.co/100x100?text=Loa')
+          +categoryItem('Máy Tính & Laptop', 'https://placehold.co/100x100?text=Laptop')
+          +categoryItem('Máy Ảnh & Quay Phim', 'https://placehold.co/100x100?text=Camera')
+          +categoryItem('Đồng Hồ', 'https://placehold.co/100x100?text=Watch')
+          +categoryItem('Giày Dép Nam', 'https://placehold.co/100x100?text=Giày')
+          +categoryItem('Thiết Bị Gia Dụng', 'https://placehold.co/100x100?text=Nồi+Cơm')
+          +categoryItem('Thể Thao & Du Lịch', 'https://placehold.co/100x100?text=Bóng')
+          +categoryItem('Ô Tô & Xe Máy', 'https://placehold.co/100x100?text=Xe')
+
+          //- Dòng 2
+          +categoryItem('Thời Trang Nữ', 'https://placehold.co/100x100?text=Váy')
+          +categoryItem('Mẹ & Bé', 'https://placehold.co/100x100?text=Bỉm')
+          +categoryItem('Nhà Cửa & Đời Sống', 'https://placehold.co/100x100?text=Chảo')
+          +categoryItem('Sắc Đẹp', 'https://placehold.co/100x100?text=Son')
+          +categoryItem('Sức Khỏe', 'https://placehold.co/100x100?text=Thuốc')
+          +categoryItem('Giày Dép Nữ', 'https://placehold.co/100x100?text=Guốc')
+          +categoryItem('Túi Ví Nữ', 'https://placehold.co/100x100?text=Túi')
+          +categoryItem('Phụ Kiện Trang Sức', 'https://placehold.co/100x100?text=Nhẫn')
+          +categoryItem('Bách Hóa Online', 'https://placehold.co/100x100?text=Mì+Gói')
+          +categoryItem('Nhà Sách Online', 'https://placehold.co/100x100?text=Sách')
+
+    //- Footer giả
+    .container.mx-auto.mt-8.text-center.pb-8.text-gray-400.text-sm
+      p © 2026 Bản quyền thuộc về Web App
+block scripts
+    script(src="/js/search.js")
