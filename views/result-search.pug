@@ -1,23 +1,27 @@
 extends layouts/default.pug 
 
 block main 
-    container.mx-auto.px-4
+    .container.mx-auto.px-4.py-8
         //- Tiêu đề kết quả
         h1.text-2xl.mb-6 
             | Kết quả tìm kiếm cho: 
-            span.font-bold.text-primary "#{keyword}"
+            span.font-bold.text-orange-500 "#{keyword}"
         
-        //- Kiểm tra xem có kết quả không
+        //- Grid sản phẩm
         if products.length > 0
-            .grid.grid-cols-2.md.grid-cols-4.gap-4
-            each item in products
-                .bg-white.p-3.rounded.shadow.hover-shadow-md.transition
-                img.w-full.h-40.object-cover.mb-2(src=item.image alt=item.name)
-                h3.text-sm.font-medium.line-clamp-2= item.name
-                p.text-orange-500.font-bold.mt-1= item.price
+            //- SỬA 1: Đưa các class có dấu : (như md:grid-cols-4) vào trong class=""
+            div(class="grid grid-cols-2 md:grid-cols-4 gap-4")
+                each item in products
+                    //- SỬA 2: Đưa class hover:shadow-md vào trong class=""
+                    div(class="bg-white p-3 rounded shadow hover:shadow-md transition")
+                        img.w-full.h-40.object-cover.mb-2(src=item.image alt=item.name)
+                        h3.text-sm.font-medium.line-clamp-2= item.name
+                        p.text-orange-500.font-bold.mt-1= item.price
         else
             .text-center.py-12
-            p.text-gray-500 Rất tiếc, không tìm thấy sản phẩm nào phù hợp.
-            a.text-blue-500.underline(href="/") Quay lại trang chủ
+                p.text-gray-500 Rất tiếc, không tìm thấy sản phẩm nào phù hợp.
+                a.text-blue-500.underline(href="/") Quay lại trang chủ
+
+//- Nhúng script tìm kiếm
 block scripts
   script(src="/js/search.js")

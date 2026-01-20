@@ -1,40 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (Giữ nguyên phần gợi ý cũ nếu có) ...
+    // 1. Xác định các phần tử trong giao diện (Header/Layout)
+    // Lưu ý: Đảm bảo trong file layout.pug hoặc header của bạn có input với id="search-input"
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('btnSearch'); // Nếu có nút kính lúp
 
-    const input = document.getElementById('search-input');
-    const searchForm = input.closest('form'); // Tìm cái form bao quanh ô input
+    // 2. Hàm xử lý chuyển hướng chung
+    function performSearch() {
+        if (!searchInput) return;
 
-    // HÀM CHUYỂN HƯỚNG SANG TRANG TÌM KIẾM
-    function handleSearch() {
-        const keyword = input.value.trim();
+        const keyword = searchInput.value.trim();
+        
+        // Chỉ tìm kiếm khi có từ khóa
         if (keyword) {
-            // Chuyển hướng sang trang /timkiem kèm theo từ khóa
-            // encodeURIComponent giúp xử lý các ký tự đặc biệt hoặc tiếng Việt
+            // Chuyển hướng sang trang kết quả
+            // Server sẽ bắt lấy param 'keyword' này để query database
+            // Sau đó server sẽ render file Pug kết quả mà bạn đã viết
             window.location.href = `/timkiem?keyword=${encodeURIComponent(keyword)}`;
         }
     }
 
-    // 1. Bắt sự kiện khi nhấn Enter trong ô input
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Chặn form submit mặc định
-            handleSearch();
-        }
-    });
+    // 3. Bắt sự kiện cho ô Input
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (event) => {
+            // Nếu nhấn phím Enter
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Chặn việc submit form mặc định (nếu có)
+                performSearch();
+            }
+        });
+    }
 
-    // 2. Bắt sự kiện khi click vào nút Kính lúp
-    // (Giả sử nút kính lúp là thẻ button bên trong form)
-    const searchBtn = searchForm.querySelector('button');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            handleSearch();
+    // 4. Bắt sự kiện cho nút Tìm kiếm (Nếu có)
+    if (searchButton) {
+        searchButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            performSearch();
         });
     }
 });
-
-// Cập nhật hàm chọn gợi ý (nếu bạn đang dùng phần gợi ý ở bài trước)
-function selectItem(text) {
-    // Khi chọn gợi ý -> Chuyển trang luôn
-    window.location.href = `/timkiem?keyword=${encodeURIComponent(text)}`;
-}

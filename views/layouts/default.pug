@@ -44,6 +44,8 @@ html
               i.fa-solid.fa-globe.margin-right-5
               | Tiếng Việt 
               i.fa-solid.fa-chevron-down.margin-left-5(style='font-size: 10px;')
+            
+            //- Phần User (Sau này có thể dùng if user để ẩn hiện)
             li.navbar-item.user-item
               .user-avatar F
               | fg0t09q5kw
@@ -57,17 +59,18 @@ html
           
           .header-search
             .header-search-input-wrap.relative
-                //- 1. Thêm ID cho Input
+                //- 1. Input Tìm kiếm
                 input#search-input.header-search-input(type='text' placeholder='QUỐC TẾ SIÊU SALE -50%' autocomplete="off")
                 
-                button.header-search-btn
+                //- Nút tìm kiếm
+                button#btnSearch.header-search-btn
                     i.fa-solid.fa-magnifying-glass
 
-                //- 2. Thêm Hộp Kết Quả Gợi Ý (Ẩn mặc định)
+                //- 2. Hộp Kết Quả Gợi Ý (Mặc định ẩn)
                 #search-results.hidden.absolute.top-full.left-0.w-full.bg-white.rounded-sm.shadow-lg.mt-1.border.border-gray-100.z-50
                     ul#suggestion-list.text-sm.text-black.text-left
 
-            //- Lịch sử tìm kiếm (Giữ nguyên design của bạn)
+            //- Lịch sử tìm kiếm
             .header-search-history
               a(href='#') Gôm Xịt Tóc Nam
               a(href='#') Bột Phồng Tóc
@@ -78,7 +81,7 @@ html
           .header-cart
             i.fa-solid.fa-cart-shopping
    
-    //- Nội dung chính của từng trang sẽ nằm ở đây
+    //- === NỘI DUNG CHÍNH (Thay đổi theo từng trang) ===
     block main
 
     footer.footer
@@ -179,5 +182,5 @@ html
               p Mã số doanh nghiệp: 0106773786 do Sở Kế hoạch & Đầu tư TP Hà Nội cấp lần đầu ngày 10/02/2015
               p &copy; 2015 - Bản quyền thuộc về Công ty TNHH Shopee
 
-    //- 3. Block Script (Để trang con nhúng JS vào)
+    //- 3. Block Script (Để các trang con nhúng JS tìm kiếm/chức năng riêng)
     block scripts
