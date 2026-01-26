@@ -1,0 +1,68 @@
+extends layouts/default.pug
+
+block main
+  .container.mx-auto.py-5
+    
+    //- Đường dẫn (Breadcrumb)
+    .text-sm.text-gray-500.mb-4
+      a(href="/") Trang chủ
+      span.mx-2 >
+      span Chi tiết sản phẩm
+
+    .bg-white.shadow-sm.p-5.flex.flex-col(class="md:flex-row gap-10")
+      
+      //--- CỘT TRÁI: ẢNH ---
+      .w-full(class="md:w-[450px]")
+        .aspect-square.bg-gray-50.mb-3.border.border-gray-100.relative
+          img.w-full.h-full.object-contain(src=product.image || 'https://via.placeholder.com/450' alt=product.name)
+
+      //--- CỘT PHẢI: THÔNG TIN ---
+      .flex-1
+        h1.text-xl.font-medium.leading-7.mb-3= product.name
+
+        //- Giá tiền
+        div(class="bg-[#fafafa] p-4 flex items-center gap-4 mb-6")
+          span(class="text-[#ee4d2d] text-3xl font-medium") #{product.price ? product.price.toLocaleString() : 0} ₫
+          span(class="bg-[#ee4d2d] text-white text-[10px] font-bold px-1 rounded-sm") GIÁ TỐT
+
+        //- Vận chuyển & Thông tin khác (Tĩnh)
+        .space-y-4.mb-8
+          .flex.items-center
+             span.w-28.text-gray-500 Vận chuyển
+             span.text-sm 🚚 Miễn phí vận chuyển
+          .flex.items-center
+             span.w-28.text-gray-500 Tình trạng
+             span.text-sm.text-green-600 Còn hàng
+
+        //- Số lượng (Demo HTML)
+        .flex.items-center.mb-8
+          span.w-28.text-gray-500 Số lượng
+          .flex.items-center.border.border-gray-300.rounded
+             button.px-3.py-1.border-r -
+             input.w-12.text-center.outline-none(value="1")
+             button.px-3.py-1.border-l +
+
+        //- NÚT HÀNH ĐỘNG
+        .flex.gap-4
+          //- Nút THÊM GIỎ HÀNG
+          button(
+            class="border border-[#ee4d2d] bg-[#ffeee8] text-[#ee4d2d] px-6 py-3 hover:bg-[#fff5f1] rounded flex items-center gap-2 transition-colors"
+            onclick=`addToCart('${product._id}')`
+          )
+            i.fa-solid.fa-cart-plus
+            | Thêm Vào Giỏ Hàng
+          
+          //- Nút MUA NGAY
+          button(
+            class="bg-[#ee4d2d] text-white px-10 py-3 hover:opacity-90 rounded font-medium shadow transition-opacity"
+            onclick=`buyNow('${product._id}')`
+          ) Mua Ngay
+
+    //- Phần mô tả dưới
+    .bg-white.shadow-sm.p-5.mt-4
+       h3.text-lg.font-bold.mb-4.bg-gray-50.p-3 Mô Tả Sản Phẩm
+       p.text-gray-600.leading-relaxed Chưa có mô tả chi tiết cho sản phẩm này.
+
+block scripts
+  //- Nhúng file JS xử lý logic
+  script(src="/js/detail.js")

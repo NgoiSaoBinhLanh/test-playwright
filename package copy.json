@@ -10,7 +10,6 @@
   "description": "",
   "dependencies": {
     "express": "^5.2.1",
-    "express-session": "^1.19.0",
     "mongoose": "^9.1.4",
     "playwright": "^1.57.0",
     "pug": "^3.0.3"

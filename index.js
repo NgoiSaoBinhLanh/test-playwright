@@ -1,161 +1,223 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const { MongoClient } = require('mongodb');
 const path = require('path');
+const session = require('express-session');
+
+// 1. IMPORT CÁC THƯ VIỆN
+const { ObjectId } = require('mongodb'); 
+const { mongoConnect, getDb } = require('./config/db'); 
+const routes = require('./Routes/index');
+
 const app = express();
 const port = 3000;
 
-// --- CẤU HÌNH ---
+// 2. CẤU HÌNH APP
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// --- 1. KẾT NỐI DATABASE ---
-// Tên database của bạn là 'demo' (theo hình ảnh Compass)
-mongoose.connect('mongodb://localhost:27017/demo')
-    .then(() => console.log('✅ Đã kết nối MongoDB'))
-    .catch(err => console.log('❌ Lỗi kết nối:', err));
-// 2. Kết nối MongoDB
-let db; // Khai báo biến toàn cục để dùng ở mọi nơi
-const url = 'mongodb://127.0.0.1:27017'; // Hoặc url của bạn
-const client = new MongoClient(url);
-async function connectDB() {
-    try {
-        await client.connect();
-        console.log("Đã kết nối MongoDB thành công!");
-        db = client.db('demo'); // Gán kết nối vào biến db
-    } catch (err) {
-        console.error("Lỗi kết nối DB:", err);
+// 3. CẤU HÌNH SESSION
+app.use(session({
+    secret: 'mySecretKey123', 
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // false: chạy localhost
+}));
+
+// =========================================================
+// 4. MIDDLEWARE (Chạy mỗi khi tải trang để đếm giỏ hàng)
+// =========================================================
+app.use(async (req, res, next) => {
+    // Truyền user xuống View
+    res.locals.user = req.session.user; 
+    
+    // Mặc định số lượng = 0
+    res.locals.cartCount = 0;
+
+    // Nếu user đã đăng nhập -> Đếm số lượng trong bảng 'carts'
+    if (req.session.user) {
+        try {
+            const db = getDb();
+            // Đếm xem user này có bao nhiêu dòng trong collection carts
+            const count = await db.collection('carts').countDocuments({ 
+                userId: new ObjectId(req.session.user._id) 
+            });
+            res.locals.cartCount = count; // Biến này sẽ hiển thị lên Icon Header
+        } catch (e) {
+            console.error("⚠️ Lỗi đếm giỏ hàng:", e);
+        }
     }
-}
-connectDB();
-// --- 2. KHAI BÁO SCHEMA (QUAN TRỌNG NHẤT) ---
-const UserSchema = new mongoose.Schema({
-    username: String,
-    password: String
-}, { 
-    // 👇 DÒNG NÀY ĐỂ TRỎ ĐÚNG VÀO COLLECTION 'infouser' CỦA BẠN 👇
-    collection: 'infouser' 
+    
+    next();
 });
 
-const User = mongoose.model('User', UserSchema);
+// =========================================================
+// 5. CÁC API XỬ LÝ (MUA HÀNG & GIỎ HÀNG)
+// =========================================================
 
-// --- ROUTES ---
-app.get('/', (req, res) => res.render('index'));
-
-//app.get('/timkiem', (req, res) => res.render('result-search'));
-app.get('/dangnhap',(req,res) =>{
-  res.render('login')
-})
-// --- API ĐĂNG NHẬP ---
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    console.log(`Đang kiểm tra: ${username} - ${password}`);
-
+// --- API: MUA NGAY ---
+app.post('/muangay', async (req, res) => {
     try {
-        // Tìm user trong collection 'infouser'
-        const user = await User.findOne({ username, password });
+        if (!req.session.user) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Bạn cần đăng nhập để mua hàng!',
+                requireLogin: true 
+            });
+        }
 
-        if (user) {
-            console.log("--> OK: Tìm thấy user!");
-            res.json({ status: 'success', message: 'Đăng nhập thành công!' });
+        const { productId } = req.body;
+        const db = getDb();
+
+        const newOrder = {
+            status: "Chờ xác nhận",
+            createdAt: new Date(),
+            customerName: req.session.user.username || "Khách hàng",
+            userId: new ObjectId(req.session.user._id),
+            products: [
+                {
+                    productId: productId, 
+                    quantity: 1 
+                }
+            ]
+        };
+
+        const result = await db.collection('orders').insertOne(newOrder);
+
+        res.json({ success: true, orderId: result.insertedId });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi Server: ' + error.message });
+    }
+});
+
+app.post('/themgiohang', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ success: false, message: 'Chưa đăng nhập!', requireLogin: true });
+        }
+
+        const { productId } = req.body;
+        // Ép kiểu ID sang ObjectId để đảm bảo MongoDB hiểu
+        const userId = new ObjectId(req.session.user._id);
+        const pId = new ObjectId(productId);
+        
+        const db = getDb();
+        const dbCarts = db.collection('carts');
+
+        console.log(`➡️ Đang thêm SP ${pId} cho User ${userId}`);
+
+        // 1. Kiểm tra tồn tại
+        const existingItem = await dbCarts.findOne({ userId: userId, productId: pId });
+
+        if (existingItem) {
+            await dbCarts.updateOne({ _id: existingItem._id }, { $inc: { quantity: 1 } });
+            console.log("   -> Đã cập nhật số lượng (+1)");
         } else {
-            console.log("--> Lỗi: Không tìm thấy user này.");
-            res.status(400).json({ status: 'fail', message: 'Sai tên đăng nhập hoặc mật khẩu' });
+            await dbCarts.insertOne({
+                userId: userId,
+                productId: pId,
+                quantity: 1,
+                createdAt: new Date()
+            });
+            console.log("   -> Đã tạo dòng mới");
         }
+
+        // 2. ĐẾM LẠI (Quan trọng)
+        const totalItemsCount = await dbCarts.countDocuments({ userId: userId });
+        console.log("✅ Tổng số lượng trong giỏ hiện tại:", totalItemsCount);
+
+        // 3. Trả về
+        res.json({ 
+            success: true, 
+            message: 'Đã thêm vào giỏ!',
+            totalItems: totalItemsCount 
+        });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: 'error', message: 'Lỗi server' });
+        console.error("❌ Lỗi Server Thêm Giỏ:", error);
+        res.status(500).json({ message: 'Lỗi Server' });
     }
 });
-// chức năng tìm kiếm
-const products = [
-    { name: "Áo thun nam", price: "150.000đ", image: "https://placehold.co/200x200?text=Ao" },
-    { name: "Áo khoác gió", price: "300.000đ", image: "https://placehold.co/200x200?text=Khoac" },
-    { name: "Quần Jean", price: "450.000đ", image: "https://placehold.co/200x200?text=Jean" },
-    { name: "Điện thoại iPhone", price: "20.000.000đ", image: "https://placehold.co/200x200?text=iPhone" },
-    { name: "Máy tính Dell", price: "15.000.000đ", image: "https://placehold.co/200x200?text=Dell" }
-];
+// =========================================================
+// 6. CÁC ROUTE HIỂN THỊ GIAO DIỆN (VIEW)
+// =========================================================
 
-// ROUTE TRANG TÌM KIẾM
-// Route Tìm kiếm sản phẩm
-app.get('/timkiem', async (req, res) => {
+// --- Trang: CHI TIẾT ĐƠN HÀNG (Hóa đơn) ---
+app.get('/donhang/:id', async (req, res) => {
     try {
-        // 1. Lấy từ khóa từ URL (ví dụ: ?keyword=iphone)
-        const keyword = req.query.keyword || '';
+        const orderId = req.params.id;
+        const db = getDb();
 
-        let products = [];
+        if (!ObjectId.isValid(orderId)) return res.status(400).send("ID đơn hàng lỗi");
 
-        if (keyword.length > 0) {
-            // 2. Kết nối bảng 'item_product'
-            // Đảm bảo biến 'db' đã được kết nối global như các bước trước
-            const collection = db.collection('item_product');
+        const order = await db.collection('orders').findOne({ _id: new ObjectId(orderId) });
 
-            // 3. Tìm kiếm bằng Regex (Tìm gần đúng, không phân biệt hoa thường)
-            // $regex: keyword -> Tìm các tên có chứa từ khóa
-            // $options: 'i' -> Case-insensitive (Chữ hoa thường như nhau)
-            products = await collection.find({
-                name: { $regex: keyword, $options: 'i' } 
-            }).toArray();
-        }
+        if (!order) return res.status(404).send("Không tìm thấy đơn hàng");
 
-        // 4. Trả về giao diện kèm kết quả
-        res.render('result-search', { 
-            products: products,
-            keyword: keyword 
+        // Join lấy thông tin sản phẩm
+        const productIds = order.products.map(p => new ObjectId(p.productId));
+        const productsInfo = await db.collection('item_product').find({ _id: { $in: productIds } }).toArray();
+
+        const mergedProducts = order.products.map(orderItem => {
+            const details = productsInfo.find(p => p._id.toString() === orderItem.productId.toString());
+            return {
+                ...orderItem,
+                name: details ? details.name : 'Sản phẩm lỗi',
+                price: details ? details.price : 0,
+                image: details ? details.image : ''
+            };
+        });
+
+        order.productsList = mergedProducts;
+        let finalTotal = mergedProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+        // SỬA TÊN FILE VIEW: order-detail.pug
+        res.render('order-detail', { 
+            order: order,
+            calculatedTotal: finalTotal
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Lỗi Server khi tìm kiếm");
+        console.error("Lỗi xem đơn:", error);
+        res.status(500).send("Lỗi Server");
     }
 });
 
-app.get('/dangky', (req, res) => {
-    res.render('signup'); // Hoặc 'register' tùy tên file pug bạn đặt
-});
-
-app.post('/dangky', async (req, res) => {
+// --- Trang: CHI TIẾT SẢN PHẨM (Để mua) ---
+app.get('/sanpham/:id', async (req, res) => {
     try {
-        // Kiểm tra xem DB đã kết nối chưa
-        if (!db) {
-            return res.status(500).json({ message: 'Chưa kết nối được Database' });
-        }
+        const productId = req.params.id;
+        const db = getDb();
 
-        const { username, email, password } = req.body;
+        if (!ObjectId.isValid(productId)) return res.status(400).send("ID sản phẩm lỗi");
 
-        // 1. Validation
-        if (!username || !email || !password) {
-            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin!' });
-        }
+        const product = await db.collection('item_product').findOne({ _id: new ObjectId(productId) });
 
-        const collection = db.collection('infouser');
+        if (!product) return res.status(404).send("Sản phẩm không tồn tại");
 
-        // 2. Kiểm tra tồn tại
-        const existingUser = await collection.findOne({ 
-            $or: [{ email: email }, { username: username }] 
+        // SỬA TÊN FILE VIEW: product-detail.pug
+        // (Đây là file chứa script addToCart và buyNow mà bạn đã tạo)
+        res.render('detail', { 
+            product: product 
         });
-
-        if (existingUser) {
-            return res.status(400).json({ message: 'Tên đăng nhập hoặc Email đã tồn tại!' });
-        }
-
-        // 3. Lưu vào DB
-        await collection.insertOne({
-            username: username.trim(),
-            email: email.trim(),
-            password: password, 
-            createdAt: new Date()
-        });
-
-        res.json({ success: true, message: 'Đăng ký thành công!' });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Lỗi hệ thống' });
+        console.error("Lỗi xem SP:", error);
+        res.status(500).send("Lỗi Server");
     }
 });
-app.listen(port, () => {
-    console.log(`🚀 Server đang chạy tại: http://localhost:${port}`);
+
+// Các Route khác (Trang chủ, Auth...)
+app.use('/', routes);
+
+// =========================================================
+// 7. KHỞI ĐỘNG SERVER
+// =========================================================
+mongoConnect(() => {
+    app.listen(port, () => {
+        console.log(`🚀 Server đang chạy tại: http://localhost:${port}`);
+    });
 });

@@ -1,0 +1,107 @@
+extends layouts/default.pug
+
+block main
+  .container.mx-auto.px-4.py-8(style="min-height: 60vh;")
+    
+    //- 1. THANH TRẠNG THÁI ĐƠN HÀNG
+    .bg-green-50.border.border-green-200.rounded-md.p-6.mb-6.flex.flex-col(class="md:flex-row items-center justify-between shadow-sm")
+      div
+        h1.text-2xl.font-bold.text-green-700.mb-2
+          i.fa-solid.fa-circle-check.mr-2
+          | Đặt hàng thành công!
+        p.text-gray-600
+          | Cảm ơn bạn đã mua sắm tại Taopee. Mã đơn hàng: 
+          span.font-mono.font-bold.text-black #{order._id}
+      
+      div(class="mt-4 md:mt-0")
+        span.inline-block.px-4.py-2.rounded-full.text-sm.font-bold.uppercase(class="bg-orange-100 text-orange-600 border border-orange-200")
+          | #{order.status || 'Chờ xác nhận'}
+
+    //- 2. THÔNG TIN NGƯỜI NHẬN
+    .grid.grid-cols-1(class="md:grid-cols-2 gap-6 mb-6")
+      //- Cột trái: Thông tin giao hàng
+      .bg-white.p-6.rounded.shadow-sm.border
+        h3.font-bold.text-lg.mb-4.border-b.pb-2 Thông Tin Nhận Hàng
+        .space-y-3
+          div.flex
+            span.w-32.text-gray-500 Người nhận:
+            span.font-medium #{order.customerName || 'Khách vãng lai'}
+          div.flex
+            span.w-32.text-gray-500 Số điện thoại:
+            span.font-medium 0905 xxx xxx (Ẩn)
+          div.flex
+            span.w-32.text-gray-500 Thời gian đặt:
+            span.font-medium #{new Date(order.createdAt).toLocaleString('vi-VN')}
+
+      //- Cột phải: Phương thức thanh toán (Demo)
+      .bg-white.p-6.rounded.shadow-sm.border
+        h3.font-bold.text-lg.mb-4.border-b.pb-2 Phương Thức Thanh Toán
+        .space-y-3
+          div.flex.items-center
+            span.w-32.text-gray-500 Hình thức:
+            span.font-medium Thanh toán khi nhận hàng (COD)
+          div.flex.items-center
+            span.w-32.text-gray-500 Trạng thái:
+            span.text-yellow-600.font-bold Chưa thanh toán
+
+    //- 3. DANH SÁCH SẢN PHẨM
+    .bg-white.rounded.shadow-sm.border.mb-6.overflow-hidden
+      .bg-gray-50.p-4.border-b.grid.grid-cols-12.text-sm.text-gray-500.font-medium
+        .col-span-6 Sản phẩm
+        .col-span-2.text-center Đơn giá
+        .col-span-2.text-center Số lượng
+        .col-span-2.text-right Thành tiền
+
+      //- Lặp qua danh sách sản phẩm
+      if order.productsList && order.productsList.length > 0
+        each item in order.productsList
+          .p-4.border-b.grid.grid-cols-12.items-center(class="hover:bg-gray-50 transition")
+            
+            //- Cột Sản phẩm (Ảnh + Tên)
+            .col-span-6.flex.items-center.gap-4
+              div.w-16.h-16.border.rounded.overflow-hidden.flex-shrink-0
+                img.w-full.h-full.object-cover(src=item.image || 'https://via.placeholder.com/150' alt=item.name)
+              div
+                h4.text-sm.font-medium.line-clamp-2= item.name
+                p.text-xs.text-gray-500.mt-1 Loại: Mặc định
+            
+            //- Cột Đơn giá
+            .col-span-2.text-center.text-gray-600
+              | #{item.price ? item.price.toLocaleString() : 0} ₫
+
+            //- Cột Số lượng
+            .col-span-2.text-center
+              span.font-bold x#{item.quantity}
+
+            //- Cột Thành tiền
+            .col-span-2.text-right.text-[#ee4d2d].font-bold
+              | #{(item.price * item.quantity).toLocaleString()} ₫
+      else
+        .p-8.text-center.text-gray-500 Không có sản phẩm nào.
+
+    //- 4. TỔNG KẾT TIỀN
+    .bg-white.rounded.shadow-sm.border.p-6
+      .flex.flex-col.items-end.space-y-3
+        div.flex.justify-between.w-full(class="md:w-1/3")
+          span.text-gray-500 Tổng tiền hàng:
+          span #{calculatedTotal ? calculatedTotal.toLocaleString() : 0} ₫
+        
+        div.flex.justify-between.w-full(class="md:w-1/3")
+          span.text-gray-500 Phí vận chuyển:
+          span 0 ₫
+        
+        div.w-full.border-t.my-2(class="md:w-1/3")
+
+        div.flex.justify-between.items-center.w-full(class="md:w-1/3")
+          span.text-lg.font-bold Tổng thanh toán:
+          span.text-2xl.text-[#ee4d2d].font-bold #{calculatedTotal ? calculatedTotal.toLocaleString() : 0} ₫
+
+    //- 5. NÚT ĐIỀU HƯỚNG
+    .flex.justify-center.mt-10.gap-4
+      a(href="/" class="px-8 py-3 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium")
+        i.fa-solid.fa-house.mr-2
+        | Về Trang Chủ
+      
+      a(href="/" class="px-8 py-3 rounded bg-[#ee4d2d] text-white hover:opacity-90 transition shadow-sm font-medium")
+        i.fa-solid.fa-cart-plus.mr-2
+        | Tiếp Tục Mua Sắm

@@ -3,26 +3,27 @@ html
   head
     meta(charset='UTF-8')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    title Shopee Clone Fixed
+    title Shopee Clone
     
-    //- Font Awesome & Font
+    //- Font Awesome (Icon)
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+    //- Font chữ
     link(href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet')
     
-    //- CSS Riêng
+    //- CSS Chính
     link(rel='stylesheet' href='/css/style-heading.css')
     link(rel="stylesheet", href="/css/home.css")
     
-    //- Tailwind CSS
+    //- Tailwind CSS (Vẫn giữ để style các phần khác)
     script(src="https://cdn.tailwindcss.com")
     
-    //- Block Head (Cho phép trang con thêm CSS nếu cần)
+    //- Block Head riêng cho từng trang con
     block head
 
   body 
     header.shopee-header
       .container
-        //- Navbar trên cùng
+        //- === 1. NAVBAR TRÊN CÙNG ===
         nav.header-navbar
           ul.navbar-list
             li.navbar-item Kênh Người Bán
@@ -33,6 +34,7 @@ html
               | Kết nối
               i.fa-brands.fa-facebook.margin-left-5
               i.fa-brands.fa-instagram.margin-left-5
+          
           ul.navbar-list
             li.navbar-item
               i.fa-regular.fa-bell.margin-right-5
@@ -45,142 +47,91 @@ html
               | Tiếng Việt 
               i.fa-solid.fa-chevron-down.margin-left-5(style='font-size: 10px;')
             
-            //- Phần User (Sau này có thể dùng if user để ẩn hiện)
-            li.navbar-item.user-item
-              .user-avatar F
-              | fg0t09q5kw
+            //- === LOGIC USER (Đăng nhập/Đăng xuất) ===
+            if user
+              //- Đã đăng nhập
+              li.navbar-item.user-item.relative.group
+                .user-avatar.flex.items-center.cursor-pointer
+                  img.w-6.h-6.rounded-full.mr-2(src="https://placehold.co/150x150/orange/white?text=" + (user.username ? user.username.charAt(0).toUpperCase() : 'U') alt="Avatar")
+                  span.user-name.font-bold= user.username
+                
+                //- Menu xổ xuống
+                ul.user-menu.absolute.top-full.right-0.bg-white.shadow-md.rounded.z-50.w-40.hidden(class="group-hover:block text-black")
+                  li.hover_bg-gray-100: a.block.px-4.py-2(href='#') Tài khoản của tôi
+                  li.hover_bg-gray-100: a.block.px-4.py-2(href='#') Đơn mua
+                  li.border-t
+                  li.hover_bg-gray-100: a.block.px-4.py-2(href='/logout') Đăng xuất
+            else
+              //- Chưa đăng nhập
+              li.navbar-item
+                a.navbar-link(href='/dangky') Đăng Ký
+              li.navbar-item.separator
+              li.navbar-item
+                a.navbar-link(href='/dangnhap') Đăng Nhập
 
-        //- Phần Tìm kiếm chính
+        //- === 2. THANH TÌM KIẾM & GIỎ HÀNG ===
         .header-with-search
           .header-logo
             a(href="/" style="text-decoration: none; color: inherit;")
                 i.fa-solid.fa-bag-shopping.logo-icon
-                span.logo-text Shopee
+                span.logo-text Taopee
           
-          .header-search
+          //- Form Tìm kiếm
+          form.header-search(action='/timkiem' method='GET')
             .header-search-input-wrap.relative
-                //- 1. Input Tìm kiếm
-                input#search-input.header-search-input(type='text' placeholder='QUỐC TẾ SIÊU SALE -50%' autocomplete="off")
+                //- value=(keyword || '') để giữ lại từ khóa khi reload trang
+                input#search-input.header-search-input(
+                  type='text' 
+                  name='keyword' 
+                  placeholder='Tìm sản phẩm, thương hiệu...' 
+                  autocomplete="off" 
+                  value=(keyword || '')
+                )
                 
-                //- Nút tìm kiếm
-                button#btnSearch.header-search-btn
+                button#btnSearch.header-search-btn(type='submit')
                     i.fa-solid.fa-magnifying-glass
 
-                //- 2. Hộp Kết Quả Gợi Ý (Mặc định ẩn)
+                //- Gợi ý (Demo)
                 #search-results.hidden.absolute.top-full.left-0.w-full.bg-white.rounded-sm.shadow-lg.mt-1.border.border-gray-100.z-50
                     ul#suggestion-list.text-sm.text-black.text-left
-
+            
             //- Lịch sử tìm kiếm
             .header-search-history
-              a(href='#') Gôm Xịt Tóc Nam
-              a(href='#') Bột Phồng Tóc
-              a(href='#') Áo Khoác Nam
-              a(href='#') Dép Nam
-              a(href='#') Túi Chéo
+              a(href='/timkiem?keyword=ao') Áo Khoác
+              a(href='/timkiem?keyword=iphone') iPhone
           
+          //- === 3. GIỎ HÀNG (ĐÃ SỬA: DÙNG CSS CỨNG) ===
           .header-cart
-            i.fa-solid.fa-cart-shopping
-   
-    //- === NỘI DUNG CHÍNH (Thay đổi theo từng trang) ===
+             a(href="/gio-hang" style="position: relative; display: inline-block; margin-left: 20px;" class="group")
+               i.fa-solid.fa-cart-shopping(style="color: white; font-size: 24px;")
+               
+               //- Xử lý Badge số lượng
+               - var count = (typeof cartCount !== 'undefined') ? cartCount : 0
+               
+               //- SỬ DỤNG STYLE TRỰC TIẾP (Để khắc phục lỗi mất style khi chuyển trang)
+               span#cart-badge(
+                 style=`
+                   position: absolute;
+                   top: -8px;
+                   right: -10px;
+                   background-color: white;
+                   color: #ee4d2d;
+                   font-size: 12px;
+                   font-weight: bold;
+                   padding: 1px 6px;
+                   border-radius: 50%;
+                   border: 1px solid #ee4d2d;
+                   z-index: 999;
+                   display: ${count > 0 ? 'block' : 'none'};
+                 `
+               ) #{count}
+    
+    //- === NỘI DUNG CHÍNH ===
     block main
 
     footer.footer
-      .container
-        .grid-row
-          .grid-column
-            h3.footer-heading CHĂM SÓC KHÁCH HÀNG
-            ul.footer-list
-              li: a.footer-item-link(href='#') Trung Tâm Trợ Giúp
-              li: a.footer-item-link(href='#') Shopee Blog
-              li: a.footer-item-link(href='#') Shopee Mall
-              li: a.footer-item-link(href='#') Hướng Dẫn Mua Hàng
-              li: a.footer-item-link(href='#') Hướng Dẫn Bán Hàng
-              li: a.footer-item-link(href='#') Thanh Toán
-              li: a.footer-item-link(href='#') Shopee Xu
-              li: a.footer-item-link(href='#') Vận Chuyển
-              li: a.footer-item-link(href='#') Trả Hàng & Hoàn Tiền
-              li: a.footer-item-link(href='#') Chăm Sóc Khách Hàng
-              li: a.footer-item-link(href='#') Chính Sách Bảo Hành
-          .grid-column
-            h3.footer-heading VỀ SHOPEE
-            ul.footer-list
-              li: a.footer-item-link(href='#') Giới Thiệu Về Shopee Việt Nam
-              li: a.footer-item-link(href='#') Tuyển Dụng
-              li: a.footer-item-link(href='#') Điều Khoản Shopee
-              li: a.footer-item-link(href='#') Chính Sách Bảo Mật
-              li: a.footer-item-link(href='#') Chính Hãng
-              li: a.footer-item-link(href='#') Kênh Người Bán
-              li: a.footer-item-link(href='#') Flash Sale
-              li: a.footer-item-link(href='#') Tiếp Thị Liên Kết
-              li: a.footer-item-link(href='#') Liên Hệ Với Truyền Thông
-          .grid-column
-            h3.footer-heading THANH TOÁN
-            .footer-img-list
-              .img-box: i.fa-brands.fa-cc-visa
-              .img-box: i.fa-brands.fa-cc-mastercard
-              .img-box: i.fa-brands.fa-cc-jcb
-              .img-box AMEX
-              .img-box COD
-              .img-box Trả Góp
-              .img-box ShopeePay
-            h3.footer-heading.margin-top-20 ĐƠN VỊ VẬN CHUYỂN
-            .footer-img-list
-              .img-box SPX
-              .img-box GHTK
-              .img-box Viettel
-              .img-box VNPost
-              .img-box J&T
-              .img-box Grab
-              .img-box Ninja
-              .img-box Best
-          .grid-column
-            h3.footer-heading THEO DÕI CHÚNG TÔI
-            
-          .grid-column
-            h3.footer-heading TẢI ỨNG DỤNG SHOPEE
-            .footer-download
-              .download-qr
-                i.fa-solid.fa-qrcode(style='font-size: 60px;')
-              .download-apps
-                a.download-app-link(href='#')
-                  i.fa-brands.fa-apple
-                  |  App Store
-                a.download-app-link(href='#')
-                  i.fa-brands.fa-google-play
-                  |  Google Play
-                a.download-app-link(href='#')
-                  i.fa-solid.fa-mobile-screen
-                  |  AppGallery
-        .footer-copyright-row
-          .copyright-text &copy; 2026 Shopee. Tất cả các quyền được bảo lưu.
-          .country-list
-            | Quốc gia & Khu vực: 
-            a(href='#') Singapore
-            |  | 
-            a(href='#') Indonesia
-            |  | 
-            a(href='#') Thái Lan
-            |  | 
-            a(href='#') Malaysia
-            |  | 
-            a(href='#') Việt Nam
-            |  | 
-            a(href='#') Philippines
-        .footer-bottom
-          .container
-            .policy-list
-              a.policy-item(href='#') CHÍNH SÁCH BẢO MẬT
-              a.policy-item(href='#') QUY CHẾ HOẠT ĐỘNG
-              a.policy-item(href='#') CHÍNH SÁCH VẬN CHUYỂN
-              a.policy-item(href='#') CHÍNH SÁCH TRẢ HÀNG VÀ HOÀN TIỀN
-            .bct-check
-              img(src='http://online.gov.vn/Content/EndUser/Logo/logo-da-thong-bao-bo-cong-thuong-mau-xanh.png' alt='Đã đăng ký bộ công thương' width='160')
-            .company-info
-              p Công ty TNHH Shopee
-              p Địa chỉ: Tầng 4-5-6, Tòa nhà Capital Place, số 29 đường Liễu Giai, Phường Ngọc Khánh, Quận Ba Đình, Thành phố Hà Nội, Việt Nam. Tổng đài hỗ trợ: 19001221 - Email: cskh@hotro.shopee.vn
-              p Chịu Trách Nhiệm Quản Lý Nội Dung: Nguyễn Đức Trí - Điện thoại liên hệ: 024 73081221 (ext 4678)
-              p Mã số doanh nghiệp: 0106773786 do Sở Kế hoạch & Đầu tư TP Hà Nội cấp lần đầu ngày 10/02/2015
-              p &copy; 2015 - Bản quyền thuộc về Công ty TNHH Shopee
+        .container
+             h3.footer-heading(style="margin-top: 20px; text-align: center; color: #737373; font-size: 14px;") &copy; 2026 Shopee Clone - Demo Playwright
 
-    //- 3. Block Script (Để các trang con nhúng JS tìm kiếm/chức năng riêng)
+    //- Block Script
     block scripts

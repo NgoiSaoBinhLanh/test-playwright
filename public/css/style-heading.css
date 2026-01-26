@@ -1,4 +1,7 @@
 /* === RESET & COMMON === */
+/* =================================================================
+   RESET & GLOBAL STYLES
+   ================================================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,22 +9,28 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, 'Roboto', sans-serif;
     font-size: 14px;
     background-color: #f5f5f5;
     color: #333;
+    line-height: 1.4;
 }
 
 ul { list-style: none; }
 a { text-decoration: none; color: inherit; }
 
-/* class tiện ích */
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Class tiện ích */
 .margin-left-5 { margin-left: 5px; }
 .margin-right-5 { margin-right: 5px; }
 .margin-top-20 { margin-top: 20px; }
 
-/* === QUAN TRỌNG: CONTAINER === */
-/* Đây là cái giúp trang web không bị tràn ra 2 bên và vỡ layout */
+/* Container chuẩn */
 .container {
     width: 1200px;
     max-width: 100%;
@@ -29,14 +38,16 @@ a { text-decoration: none; color: inherit; }
     padding: 0 10px;
 }
 
-/* === HEADER === */
+/* =================================================================
+   HEADER SECTION
+   ================================================================= */
 .shopee-header {
     background: linear-gradient(-180deg, #f53d2d, #f63);
     color: #fff;
     padding-bottom: 10px;
 }
 
-/* Top Nav */
+/* --- Top Navbar --- */
 .header-navbar {
     display: flex;
     justify-content: space-between;
@@ -66,20 +77,109 @@ a { text-decoration: none; color: inherit; }
     margin: 0;
 }
 
-.user-avatar {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #fff;
-    color: #f53d2d;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 5px;
-    font-weight: bold;
+.navbar-link {
+    text-decoration: none;
+    color: #fff;
 }
 
-/* Main Header */
+/* =================================================================
+   USER MENU (LOGIC ĐĂNG NHẬP) - PHẦN QUAN TRỌNG MỚI THÊM
+   ================================================================= */
+.navbar-item.user-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Avatar người dùng */
+.user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    margin-right: 5px;
+    overflow: hidden; /* Cắt ảnh nếu ảnh vuông */
+    background-color: #fff; /* Màu nền dự phòng */
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+/* Menu xổ xuống (Dropdown) */
+.user-menu {
+    position: absolute;
+    z-index: 10;
+    top: 130%; /* Đẩy xuống dưới navbar một chút */
+    right: 0;
+    width: 160px;
+    background-color: white;
+    list-style: none;
+    padding: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    border: 1px solid #e5e5e5;
+    
+    /* Mặc định ẩn, hiện khi hover */
+    display: none;
+    animation: fadeIn ease-in 0.2s;
+    transform-origin: calc(100% - 20px) top;
+}
+
+/* Mũi tên nhọn chỉ lên trên menu */
+.user-menu::after {
+    content: "";
+    position: absolute;
+    top: -20px;
+    right: 28px;
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent white transparent;
+}
+
+/* Cầu nối trong suốt để giữ hover không bị mất khi di chuột xuống */
+.user-menu::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    right: 0;
+    width: 100%;
+    height: 20px;
+    display: block;
+}
+
+/* Logic hiện menu */
+.navbar-item.user-item:hover .user-menu {
+    display: block;
+}
+
+/* Item trong menu */
+.user-menu-item a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    padding: 10px 16px;
+    display: block;
+}
+
+.user-menu-item a:hover {
+    background-color: #fafafa;
+    color: #00bfa5; /* Xanh Shopee */
+}
+
+.separator-top {
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* =================================================================
+   MAIN HEADER (LOGO - SEARCH - CART)
+   ================================================================= */
 .header-with-search {
     height: 85px;
     display: flex;
@@ -87,16 +187,19 @@ a { text-decoration: none; color: inherit; }
     margin-top: 10px;
 }
 
+/* Logo */
 .header-logo {
     width: 200px;
     display: flex;
     align-items: center;
     cursor: pointer;
+    padding-left: 8px;
 }
 
 .logo-icon { font-size: 45px; margin-right: 10px; }
 .logo-text { font-size: 30px; font-weight: 500; }
 
+/* Search Form */
 .header-search {
     flex: 1;
     display: flex;
@@ -110,16 +213,18 @@ a { text-decoration: none; color: inherit; }
     display: flex;
     align-items: center;
     padding: 3px;
+    position: relative; /* Để chứa hộp gợi ý absolute */
 }
 
 .header-search-input {
-    width: 100%;
+    flex: 1;
     height: 100%;
     border: none;
     outline: none;
     font-size: 14px;
     padding: 0 16px;
     color: #333;
+    border-radius: 2px;
 }
 
 .header-search-btn {
@@ -130,6 +235,9 @@ a { text-decoration: none; color: inherit; }
     border-radius: 2px;
     color: #fff;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .header-search-btn:hover { background-color: #fa6c51; }
@@ -142,14 +250,42 @@ a { text-decoration: none; color: inherit; }
     font-weight: 300;
 }
 
+/* Cart (Giỏ hàng) */
 .header-cart {
     width: 150px;
     text-align: center;
-    font-size: 26px;
+}
+
+.header-cart-wrap {
+    position: relative;
+    display: inline-block;
+    padding: 0 12px;
     cursor: pointer;
 }
 
-/* === FOOTER (Sửa lỗi vỡ layout) === */
+.header-cart-wrap i {
+    font-size: 26px;
+    color: #fff;
+    margin-top: 6px;
+}
+
+/* Số lượng trên giỏ hàng */
+.header-cart-notice {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    padding: 1px 7px;
+    font-size: 12px;
+    line-height: 14px;
+    border-radius: 10px;
+    border: 2px solid #ee4d2d;
+    color: #ee4d2d;
+    background-color: #fff;
+}
+
+/* =================================================================
+   FOOTER SECTION
+   ================================================================= */
 .footer {
     border-top: 4px solid #ee4d2d;
     background-color: #fbfbfb;
@@ -162,11 +298,12 @@ a { text-decoration: none; color: inherit; }
     border-bottom: 1px solid rgba(0,0,0,.1);
 }
 
-/* Grid System cho Footer - 5 Cột đều nhau */
+/* Grid System */
 .grid-row {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 cột bằng nhau */
+    grid-template-columns: repeat(5, 1fr);
     gap: 20px;
+    margin-top: 30px;
     margin-bottom: 30px;
 }
 
@@ -179,31 +316,35 @@ a { text-decoration: none; color: inherit; }
 }
 
 .footer-list { padding-left: 0; }
+
 .footer-item-link {
     display: block;
     font-size: 12px;
     color: rgba(0,0,0,.54);
     margin-bottom: 12px;
+    display: flex;
+    align-items: center;
 }
+
 .footer-item-link:hover { color: #ee4d2d; }
 
 .footer-item-link i {
     width: 16px;
-    margin-right: 5px;
-    text-align: center;
-    color: #4a4a4a;
+    margin-right: 8px;
+    font-size: 14px;
 }
 
-/* Ảnh Payment / Ship giả lập */
+/* Payment & Ship Images */
 .footer-img-list {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 20px;
 }
 
 .img-box {
-    width: 55px;
-    height: 28px;
+    width: 60px;
+    height: 30px;
     background: #fff;
     border: 1px solid rgba(0,0,0,.1);
     border-radius: 2px;
@@ -220,21 +361,25 @@ a { text-decoration: none; color: inherit; }
 .download-qr {
     border: 1px solid rgba(0,0,0,.1);
     padding: 4px;
+    background-color: #fff;
 }
 .download-apps { display: flex; flex-direction: column; justify-content: space-around; }
+
 .download-app-link {
     background: #fff;
     border: 1px solid rgba(0,0,0,.1);
     padding: 4px 8px;
     border-radius: 2px;
-    font-size: 11px;
+    font-size: 12px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    width: 80px;
+    gap: 8px;
+    width: 100px;
+    color: #333;
+    box-shadow: 0 1px 1px rgba(0,0,0,.1);
 }
 
-/* Copyright Row */
+/* Footer Bottom */
 .footer-copyright-row {
     display: flex;
     justify-content: space-between;
@@ -245,12 +390,11 @@ a { text-decoration: none; color: inherit; }
 }
 
 .country-list a {
-    padding: 0 3px;
+    padding: 0 5px;
     border-right: 1px solid rgba(0,0,0,.2);
 }
 .country-list a:last-child { border: none; }
 
-/* === FOOTER BOTTOM === */
 .footer-bottom {
     background-color: #f5f5f5;
     padding: 40px 0;
@@ -261,7 +405,7 @@ a { text-decoration: none; color: inherit; }
     display: flex;
     justify-content: center;
     gap: 30px;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 .policy-item {
@@ -269,8 +413,6 @@ a { text-decoration: none; color: inherit; }
     color: rgba(0,0,0,.65);
     text-transform: uppercase;
 }
-
-.bct-check { margin-bottom: 15px; }
 
 .company-info p {
     margin-bottom: 8px;

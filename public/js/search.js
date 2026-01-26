@@ -38,3 +38,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+async function taoDonHangTuSanPham(productId) {
+    try {
+        // Hiệu ứng UX: Đổi con trỏ chuột thành đang chờ
+        document.body.style.cursor = 'wait';
+
+        // 1. Gọi API tạo đơn hàng nhanh (Mua Ngay)
+        const response = await fetch('/muangay', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId: productId })
+        });
+
+        const data = await response.json();
+
+        // 2. Nếu thành công -> Chuyển sang trang Chi tiết Đơn Hàng
+        if (response.ok && data.success) {
+            window.location.href = `/donhang/${data.orderId}`;
+        } else {
+            alert('Lỗi: ' + (data.message || 'Không thể tạo đơn hàng'));
+            document.body.style.cursor = 'default';
+        }
+
+    } catch (error) {
+        console.error('Lỗi click sản phẩm:', error);
+        alert('Đã xảy ra lỗi kết nối!');
+        document.body.style.cursor = 'default';
+    }
+}
+function updateCartBadge(number) {
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+        badge.innerText = number;
+        badge.classList.remove('hidden'); // Xóa class ẩn
+        badge.style.display = 'block';    // Bắt buộc hiện
+    } else {
+        console.error("Vẫn chưa tìm thấy #cart-badge!");
+    }
+}
