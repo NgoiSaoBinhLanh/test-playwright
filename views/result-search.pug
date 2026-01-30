@@ -2,27 +2,95 @@ extends layouts/default.pug
 
 block main 
     .container.mx-auto.px-4.py-8(style="min-height: 60vh;")
+        
+        //- 1. TIÊU ĐỀ TÌM KIẾM
         h1.text-2xl.mb-6.mt-4 
             | Kết quả tìm kiếm cho: 
             span.font-bold(style="color: #ee4d2d;") "#{keyword}"
         
+        //- 2. THANH SẮP XẾP (FILTER BAR) - Đã đồng bộ với Backend
+        div(class="bg-[#ededed] py-3 px-5 rounded-sm mb-6 flex items-center justify-between")
+            
+            //- Cụm bên trái: Các nút sắp xếp
+            div(class="flex items-center gap-2")
+                span(class="text-sm text-gray-600 mr-2") Sắp xếp theo
+
+                //- Logic xác định nút nào đang được chọn (Active)
+                //- Biến 'sort' được truyền từ res.render ở file index.js
+                - var currentSort = sort || 'relevance'
+                
+                //- Nút Liên Quan
+                a(href=`/timkiem?keyword=${keyword}&sort=relevance` 
+                  class=`px-4 py-2 text-sm rounded-sm capitalize transition ${currentSort == 'relevance' ? 'bg-[#ee4d2d] text-white font-medium' : 'bg-white text-gray-800 hover:bg-gray-50'}`) Liên Quan
+
+                //- Nút Mới Nhất
+                a(href=`/timkiem?keyword=${keyword}&sort=newest` 
+                  class=`px-4 py-2 text-sm rounded-sm capitalize transition ${currentSort == 'newest' ? 'bg-[#ee4d2d] text-white font-medium' : 'bg-white text-gray-800 hover:bg-gray-50'}`) Mới Nhất
+
+                //- Nút Bán Chạy
+                a(href=`/timkiem?keyword=${keyword}&sort=sales` 
+                  class=`px-4 py-2 text-sm rounded-sm capitalize transition ${currentSort == 'sales' ? 'bg-[#ee4d2d] text-white font-medium' : 'bg-white text-gray-800 hover:bg-gray-50'}`) Bán Chạy
+
+                //- Dropdown Giá (Xử lý active khi chọn giá)
+                - var isPriceSort = (currentSort == 'price_asc' || currentSort == 'price_desc')
+                
+                div(class="relative group")
+                    //- Nút hiển thị hiện tại
+                    button(class=`min-w-[200px] px-4 py-2 text-sm rounded-sm flex justify-between items-center hover:bg-gray-50 ${isPriceSort ? 'bg-[#ee4d2d] text-white' : 'bg-white text-gray-800'}`)
+                        span= currentSort == 'price_asc' ? 'Giá: Thấp đến Cao' : (currentSort == 'price_desc' ? 'Giá: Cao đến Thấp' : 'Giá')
+                        //- Đổi màu icon mũi tên tùy theo trạng thái active
+                        i(class=`fa-solid fa-chevron-down ml-2 ${isPriceSort ? 'text-white' : 'text-gray-500'}`)
+                    
+                    //- Menu con xổ xuống
+                    div(class="absolute top-full left-0 w-full bg-white shadow-md hidden group-hover:block z-10 rounded-b-sm py-1")
+                        a(href=`/timkiem?keyword=${keyword}&sort=price_asc` class="block px-4 py-2 text-sm hover:text-[#ee4d2d] text-gray-800") Giá: Thấp đến Cao
+                        a(href=`/timkiem?keyword=${keyword}&sort=price_desc` class="block px-4 py-2 text-sm hover:text-[#ee4d2d] text-gray-800") Giá: Cao đến Thấp
+
+            //- Cụm bên phải: Phân trang nhỏ (Giữ nguyên demo)
+            div(class="flex items-center")
+                div(class="text-sm mr-4")
+                    span(class="text-[#ee4d2d]") 1
+                    | /1
+                
+                div(class="flex")
+                    button(class="w-9 h-9 bg-white border border-gray-200 rounded-l-sm flex items-center justify-center cursor-not-allowed opacity-50")
+                        i(class="fa-solid fa-chevron-left text-gray-400")
+                    button(class="w-9 h-9 bg-white border border-gray-200 border-l-0 rounded-r-sm flex items-center justify-center hover:bg-gray-50")
+                        i(class="fa-solid fa-chevron-right text-gray-600")
+
+        //- 3. DANH SÁCH SẢN PHẨM
         if products.length > 0
             div(class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4")
                 each item in products
-                    //- SỬA TẠI ĐÂY: Dùng thẻ 'a' bao quanh để chuyển trang
                     a(
                         href=`/sanpham/${item._id}` 
                         class="bg-white rounded shadow hover:shadow-lg transition block overflow-hidden cursor-pointer group"
                     )
+                        //- Ảnh sản phẩm
                         div(class="relative w-full pt-[100%]")
-                            img.absolute.top-0.left-0.w-full.h-full.object-cover(src=item.image || 'https://via.placeholder.com/150' alt=item.name)
-                        
-                        .p-3
-                            h3(class="text-sm line-clamp-2 min-h-[40px] group-hover:text-orange-500")= item.name
-                            .flex.items-center.justify-between.mt-2
-                                span.text-orange-500.font-bold= item.price ? item.price.toLocaleString() + ' đ' : 'Liên hệ'
-                                span.text-xs.text-gray-500 Đã bán 100+
+                            img(class="absolute top-0 left-0 w-full h-full object-cover" src=item.image || 'https://via.placeholder.com/150' alt=item.name)
+                            if item.price
+                                div(class="absolute top-0 right-0 bg-yellow-400 text-white text-xs px-1 py-1 font-bold" style="clip-path: polygon(100% 0, 100% 100%, 50% 85%, 0 100%, 0 0);")
+                                    span -17%
+
+                        //- Thông tin
+                        div(class="p-3 flex flex-col h-[110px]") 
+                            //- Tên SP (giới hạn 2 dòng)
+                            h3(class="text-sm line-clamp-2 mb-2 group-hover:text-orange-500 h-10 overflow-hidden")= item.name
+                            
+                            //- Giá và đã bán (Đẩy xuống đáy)
+                            div(class="flex items-center justify-between mt-auto")
+                                div
+                                    span(class="text-[#ee4d2d] font-bold text-base")= item.price ? item.price.toLocaleString() + ' đ' : 'Liên hệ'
+                                span(class="text-xs text-gray-500") Đã bán 88
+                            
+                            //- Địa điểm
+                            div(class="mt-1 text-right")
+                                span(class="text-xs text-gray-400") Hà Nội
         else
-            .text-center.py-12.text-gray-500 Không tìm thấy sản phẩm nào.
+            div(class="text-center py-12 text-gray-500")
+                i(class="fa-solid fa-magnifying-glass text-4xl mb-4 text-gray-300")
+                p Không tìm thấy sản phẩm nào phù hợp với từ khóa "#{keyword}".
+
 block scripts
   script(src="/js/search.js")

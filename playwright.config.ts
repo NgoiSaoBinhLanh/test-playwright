@@ -24,6 +24,10 @@ export default defineConfig({
 
     /* Thu thập dấu vết khi test thất bại */
     trace: 'on-first-retry',
+    /* Cấu hình khởi động trình duyệt: Làm chậm tốc độ test */
+    launchOptions: {
+        slowMo: 1000, // Chậm lại 1000ms (1 giây) giữa mỗi thao tác
+    },
   },
 
   /* Cấu hình các trình duyệt sẽ chạy test */
@@ -46,4 +50,5 @@ export default defineConfig({
   //   url: 'http://localhost:3000',
   //   reuseExistingServer: true,
   // },
+  
 });

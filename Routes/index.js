@@ -27,7 +27,7 @@ router.get('/logout', authController.logout);
 // Đảm bảo bên productController.js cũng export đúng tên hàm getHomePage, searchProduct
 if (productController) {
     router.get('/', productController.getHomePage);
-    router.get('/timkiem', productController.searchProduct);
+    //router.get('/timkiem', productController.searchProduct);
 }
 
 module.exports = router;
